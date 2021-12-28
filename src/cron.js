@@ -23,7 +23,6 @@ const syncPicklistValues = async () => {
   });
 
   await Promise.all(promises);
-  console.log('syncPicklistValues Done');
 };
 
 const syncDataOverUserPermission = async (userId) => {
