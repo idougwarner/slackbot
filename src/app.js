@@ -5,10 +5,8 @@ const { App, LogLevel } = require("@slack/bolt");
 const slack = require('./slack');
 const salesforce = require('./salesforce');
 const localStorage = require('./local-storage');
-const { cronTask, syncDataOverUserPermission } = require('./cron');
+const { syncDataOverUserPermission } = require('./cron');
 const slackPayloads = require('./payloads');
-
-cronTask.start();
 
 // Instantiate Slack App with Custom Reciever
 const app = new App({
