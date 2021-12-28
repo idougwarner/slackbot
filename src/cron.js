@@ -26,14 +26,34 @@ const syncPicklistValues = async () => {
   console.log('syncPicklistValues Done');
 };
 
+const syncDataOverUserPermission = async (userId) => {
+  const { instanceUrl, accessToken, refreshToken } = localStorage.getItem(userId);
+  const connection = salesforce.getConnectionByAccessToken(instanceUrl, accessToken, refreshToken);
+
+  try {
+    const accounts = await salesforce.getAccounts(connection);
+    localStorage.setItem(`${userId}-data`, {
+      accounts
+    });
+  } catch (error) {
+    console.error(error);
+  }
+};
+
 const task = cron.schedule('5 * * * *', async () => {
   console.log('syncing ...');
+
   await syncPicklistValues();
+
+  const users = localStorage.getItem('users');
+  const promises = users.map(syncDataOverUserPermission);
+  await Promise.all(promises);
 }, {
   scheduled: false
 });
 
 module.exports = {
   cronTask: task,
-  syncPicklistValues
+  syncPicklistValues,
+  syncDataOverUserPermission
 };

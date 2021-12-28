@@ -5,7 +5,7 @@ const { App, LogLevel } = require("@slack/bolt");
 const slack = require('./slack');
 const salesforce = require('./salesforce');
 const localStorage = require('./local-storage');
-const { cronTask } = require('./cron');
+const { cronTask, syncDataOverUserPermission } = require('./cron');
 const slackPayloads = require('./payloads');
 
 cronTask.start();
@@ -45,6 +45,8 @@ slack.receiver.router.get("/salesforce/oauth_redirect", async (req, res) => {
       instanceUrl: connection.instanceUrl,
     });
 
+    await syncDataOverUserPermission(installingUserId);
+
     res.send(
       "Successfully connected slack with your Salesforce User. You can close this window"
     );
@@ -79,6 +81,8 @@ app.command('/submit-ticket', async ({ ack, body, client, logger }) => {
     const result = await client.views.open(slackPayloads.recordTypeNotDeterminedModal({
       // Pass a valid trigger_id within 3 seconds of receiving it
       triggerId: body.trigger_id,
+      // Slack user ID
+      userId: body.user_id,
       // Metadata
       metadata: {
         channelId: body.channel_id
@@ -102,6 +106,8 @@ app.action('select_category', async ({ ack, body, client, logger }) => {
       viewId: body.view.id,
       // Pass the current hash to avoid race conditions
       hash: body.view.hash,
+      // Slack user ID
+      userId: body.user.id,
       // The ticket form depends on the selected case category
       recordTypeId: selectedRecordType.value,
       // Metadata
@@ -133,7 +139,7 @@ app.view('record_type_determined_view', async ({ ack, body, view, client, logger
     // Create a case
     const result = await salesforce.createCase(connection, {
       RecordTypeId: values['select_category']['selected_option']['value'],
-      AccountId: '0016e00002htH1DAAU',
+      AccountId: values['select_account']['selected_option']['value'],
       Type: values['select_case_type']['selected_option']['value'],
       Case_Detail__c: values['select_case_detail']['selected_options'].map(option => option.value).join(';'),
       Subject: values['input_case_subject']['value'],

@@ -1,7 +1,8 @@
 const localStorage = require('./local-storage');
 
-const getCommonBlocks = () => {
+const getCommonBlocks = (userId) => {
   recordTypes = localStorage.getItem('case_record_type_picklist');
+  userData = localStorage.getItem(`${userId}-data`);
 
   return [
     {
@@ -44,13 +45,13 @@ const getCommonBlocks = () => {
           type: 'plain_text',
           text: 'Select a team'
         },
-        options: [{
+        options: userData.accounts.map((account) => ({
           text: {
             type: 'plain_text',
-            text: 'Team 1'
+            text: account.label
           },
-          value: 'team1'
-        }],
+          value: account.value
+        })),
         action_id: 'select_account'
       }
     }
@@ -58,6 +59,7 @@ const getCommonBlocks = () => {
 };
 
 const recordTypeNotDeterminedModal = ({
+  userId,
   triggerId,
   metadata
 }) => {
@@ -75,7 +77,7 @@ const recordTypeNotDeterminedModal = ({
         type: 'plain_text',
         text: 'Submit',
       },
-      blocks: getCommonBlocks()
+      blocks: getCommonBlocks(userId)
     }
   };
 };
@@ -83,6 +85,7 @@ const recordTypeNotDeterminedModal = ({
 const recordTypeDeterminedModal = ({
   viewId,
   hash,
+  userId,
   recordTypeId,
   metadata
 }) => {
@@ -107,7 +110,7 @@ const recordTypeDeterminedModal = ({
         text: "Submit",
       },
       blocks: [
-        ...getCommonBlocks(),
+        ...getCommonBlocks(userId),
         {
           type: 'input',
           label: {

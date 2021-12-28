@@ -40,8 +40,11 @@ const getConnectionByUsernameAndPassword = async () => {
 };
 
 const getAccounts = async (connection) => {
-  const result = await connection.query("SELECT Id, Name FROM Account");
-  return result;
+  const { records } = await connection.query("SELECT Id, Name FROM Account WHERE Stage__c != 'Terminated' AND RecordTypeId = '0123i0000005iQmAAI'");
+  return records.map(record => ({
+    label: record.Name,
+    value: record.Id
+  }));
 };
 
 const getCaseObjectActiveRecordTypes = async (connection) => {
