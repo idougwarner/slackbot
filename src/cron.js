@@ -40,17 +40,17 @@ const syncDataOverUserPermission = async (userId) => {
   }
 };
 
-// cron.schedule('*/5 * * * *', async () => {
-//   console.log('syncing ...');
+cron.schedule('*/5 * * * *', async () => {
+  console.log('syncing ...');
 
-//   await syncPicklistValues();
+  await syncPicklistValues();
 
-//   const users = localStorage.getItem('users');
-//   const promises = users.map(syncDataOverUserPermission);
-//   await Promise.all(promises);
-// });
+  const users = localStorage.getItem('users');
+  const promises = users.map(syncDataOverUserPermission);
+  await Promise.all(promises);
 
-syncPicklistValues();
+  console.log('sync done');
+});
 
 module.exports = {
   syncPicklistValues,
