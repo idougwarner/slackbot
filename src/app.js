@@ -55,6 +55,9 @@ slack.receiver.router.get("/salesforce/oauth_redirect", async (req, res) => {
 
 // Listen for users opening the App Home
 app.event('app_home_opened', async ({ event, client, logger }) => {
+  // Acknowledge command request
+  await ack();
+
   try {
     // Call views.publish with the built-in client
     const result = await client.views.publish(slackPayloads.appHomeView({
