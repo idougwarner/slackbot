@@ -18,7 +18,7 @@
 #### Add a Slash Command
 1. Go back to the app settings and click on **Slash Commands**.
 1. Click the 'Create New Command' button and fill in the following:
-    * Command: `/submit-ticket`
+    * Command: `/ticket`
     * Request URL: Your server + `/slack/events`
     * Short description: `Create a case`
     * Usage hint: `[the problem you're having]`

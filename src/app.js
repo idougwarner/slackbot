@@ -70,7 +70,7 @@ app.event('app_home_opened', async ({ event, client, logger }) => {
   }
 });
 
-app.command('/submit-ticket', async ({ ack, body, client, logger }) => {
+app.command('/ticket', async ({ ack, body, client, logger }) => {
   // Acknowledge command request
   await ack();
 
