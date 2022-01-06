@@ -65,9 +65,6 @@
     * `SLACK_SIGNING_SECRET`: Your app's Signing Secret (available on the **Basic Information** page)
     * `SALESFORCE_CLIENT_ID`: Your connected app's consumer key
     * `SALESFORCE_CLIENT_SECRET`: Your connected app's secret key
-    * `SALESFORCE_USERNAME`: A dedicated salesforce account username
-    * `SALESFORCE_PASSWORD`: A dedicated salesforce account password
-    * `SALESFORCE_USER_SECRET_TOKEN`: A dedicated salesforce account secret token
 
 #### Run the app 
 
