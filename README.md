@@ -12,7 +12,7 @@
     * `chat:write`
     * `chat:write.public`
     * `channels:join`
-1. In the **OAuth & Permissions** page, add a redirect URL item and set it to your server + `/slack/events`.
+1. In the **OAuth & Permissions** page, add a redirect URL item and set it to your server + `/slack/oauth_redirect`.
 1. Click 'Save Changes' and install the app (You should get an OAuth access token after the installation)
 
 #### Add a Slash Command

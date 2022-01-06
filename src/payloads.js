@@ -1,37 +1,9 @@
 const localStorage = require('./local-storage');
 
 const getCommonBlocks = (userId) => {
-  recordTypes = localStorage.getItem('case_record_type_picklist');
-  userData = localStorage.getItem(`${userId}-data`);
+  const userData = localStorage.getItem(`${userId}-data`);
 
   return [
-    {
-      block_id: 'case_category',
-      type: 'input',
-      label: {
-        type: 'plain_text',
-        text: 'Category'
-      },
-      element: {
-        type: 'static_select',
-        placeholder: {
-          type: 'plain_text',
-          text: 'Select a category'
-        },
-        options: recordTypes.map((recordType) => ({
-          text: {
-            type: 'plain_text',
-            text: recordType.label
-          },
-          value: recordType.value
-        })),
-        action_id: 'select_category'
-      },
-      dispatch_action: true
-    },
-    {
-      type: 'divider'
-    },
     {
       block_id: 'case_account',
       type: 'input',
@@ -54,6 +26,30 @@ const getCommonBlocks = (userId) => {
         })),
         action_id: 'select_account'
       }
+    },
+    {
+      block_id: 'case_category',
+      type: 'input',
+      label: {
+        type: 'plain_text',
+        text: 'Category'
+      },
+      element: {
+        type: 'static_select',
+        placeholder: {
+          type: 'plain_text',
+          text: 'Select a category'
+        },
+        options: userData.caseRecordTypes.map((recordType) => ({
+          text: {
+            type: 'plain_text',
+            text: recordType.label
+          },
+          value: recordType.value
+        })),
+        action_id: 'select_category'
+      },
+      dispatch_action: true
     }
   ];
 };
@@ -89,10 +85,31 @@ const recordTypeDeterminedModal = ({
   recordTypeId,
   metadata
 }) => {
-  caseTypes = localStorage.getItem(`case_type_picklist_${recordTypeId}`);
-  caseDetails = localStorage.getItem(`case_detail_picklist_${recordTypeId}`);
-  casePriorities = localStorage.getItem(`case_priority_picklist_${recordTypeId}`);
-  caseWorkLocations = localStorage.getItem(`case_work_location_picklist_${recordTypeId}`);
+  const userData = localStorage.getItem(`${userId}-data`);
+  const recordType = userData.caseRecordTypes.find(recordType => recordType.value === recordTypeId);
+
+  const softwareBlock = {
+    type: 'input',
+    label: {
+      type: 'plain_text',
+      text: 'Software'
+    },
+    element: {
+      type: 'static_select',
+      placeholder: {
+        type: 'plain_text',
+        text: 'Select software'
+      },
+      options: recordType.softwares.map((software) => ({
+        text: {
+          type: 'plain_text',
+          text: software.label
+        },
+        value: software.value
+      })),
+      action_id: 'select_software'
+    }
+  };
 
   return {
     view_id: viewId,
@@ -123,7 +140,7 @@ const recordTypeDeterminedModal = ({
               type: 'plain_text',
               text: 'Select a type'
             },
-            options: caseTypes.map((caseType) => ({
+            options: recordType.types.map((caseType) => ({
               text: {
                 type: 'plain_text',
                 text: caseType.label
@@ -145,7 +162,7 @@ const recordTypeDeterminedModal = ({
               type: 'plain_text',
               text: 'Select details'
             },
-            options: caseDetails.map((caseDetail) => ({
+            options: recordType.details.map((caseDetail) => ({
               text: {
                 type: 'plain_text',
                 text: caseDetail.label
@@ -155,6 +172,7 @@ const recordTypeDeterminedModal = ({
             action_id: 'select_case_detail'
           }
         },
+        ...(recordType.label === 'Software' ? [softwareBlock] : []),
         {
           type: 'input',
           label: {
@@ -205,7 +223,7 @@ const recordTypeDeterminedModal = ({
               type: 'plain_text',
               text: 'Select a priority'
             },
-            options: casePriorities.map((casePriority) => ({
+            options: recordType.priorities.map((casePriority) => ({
               text: {
                 type: 'plain_text',
                 text: casePriority.label
@@ -219,6 +237,25 @@ const recordTypeDeterminedModal = ({
           type: 'input',
           label: {
             type: 'plain_text',
+            text: '-'
+          },
+          element: {
+            type: 'checkboxes',
+            options: [{
+              text: {
+                type: 'plain_text',
+                text: 'This is preventing me from doing my job'
+              },
+              value: 'job_preventing'
+            }],
+            action_id: 'select_job_preventing'
+          },
+          optional: true
+        },
+        {
+          type: 'input',
+          label: {
+            type: 'plain_text',
             text: 'Work Location'
           },
           element: {
@@ -227,7 +264,7 @@ const recordTypeDeterminedModal = ({
               type: 'plain_text',
               text: 'Select a work location'
             },
-            options: caseWorkLocations.map((caseWorkLocation) => ({
+            options: recordType.worklocations.map((caseWorkLocation) => ({
               text: {
                 type: 'plain_text',
                 text: caseWorkLocation.label
@@ -256,7 +293,8 @@ const createCaseCompletedMessage = (context) => {
         text: 'Click to see'
       },
       value: 'click_to_see',
-      url: context.url
+      url: context.url,
+      action_id: 'url_button'
     }
   }];
 };
@@ -271,10 +309,11 @@ const appHomeView = (context) => ({
         type: 'button',
         text: {
           type: 'plain_text',
-          text: 'Connect Salesforce'
+          text: context.hasSalesforceToken ? 'Reconnect Salesforce' : 'Connect Salesforce'
         },
         value: 'connect_salesforce',
-        url: context.url
+        url: context.url,
+        action_id: 'url_button'
       }]
     }]
   }

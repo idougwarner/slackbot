@@ -24,10 +24,7 @@ slack.receiver.router.get("/salesforce/oauth_redirect", async (req, res) => {
     const userInfo = await connection.identity();
 
     // Add the new installing user to the users table
-    let users = localStorage.getItem('users');
-    if (!users) {
-      users = [];
-    }
+    const users = localStorage.getItem('users') || [];
     if (!users.find(userId => userId === installingUserId)) {
       users.push(installingUserId);
       localStorage.setItem('users', users);
@@ -55,10 +52,13 @@ slack.receiver.router.get("/salesforce/oauth_redirect", async (req, res) => {
 
 // Listen for users opening the App Home
 app.event('app_home_opened', async ({ event, client, logger }) => {
+  const userInfo = localStorage.getItem(event.user);
+
   try {
     // Call views.publish with the built-in client
     const result = await client.views.publish(slackPayloads.appHomeView({
       userId: event.user,
+      hasSalesforceToken: !!userInfo,
       url: salesforce.getAuthorizeUrl({
         state: event.user
       })
@@ -70,9 +70,15 @@ app.event('app_home_opened', async ({ event, client, logger }) => {
   }
 });
 
-app.command('/ticket', async ({ ack, body, client, logger }) => {
+app.command('/ticket', async ({ ack, body, client, logger, say }) => {
   // Acknowledge command request
   await ack();
+
+  const userInfo = localStorage.getItem(body.user_id);
+  if (!userInfo) {
+    say('You can not use this command until you connect your salesforce account');
+    return;
+  }
 
   try {
     // Call views.open with the built-in client
@@ -135,7 +141,7 @@ app.view('record_type_determined_view', async ({ ack, body, view, client, logger
 
   try {
     // Create a case
-    const result = await salesforce.createCase(connection, {
+    const payload = {
       RecordTypeId: values['select_category']['selected_option']['value'],
       AccountId: values['select_account']['selected_option']['value'],
       Type: values['select_case_type']['selected_option']['value'],
@@ -144,8 +150,13 @@ app.view('record_type_determined_view', async ({ ack, body, view, client, logger
       Description: values['input_case_description']['value'],
       Due_Date__c: values['select_due_date']['selected_date'],
       Priority: values['select_case_priority']['selected_option']['value'],
+      Job_Preventing__c: values['select_job_preventing']['selected_options'].length === 1,
       Work_Location__c: values['select_case_work_location']['selected_option']['value']
-    });
+    };
+    if (values['select_software']) {
+      payload['Software__c'] = values['select_software']['selected_option']['value'];
+    }
+    const result = await salesforce.createCase(connection, payload);
 
     // Call chat.postMessage with the built-in client
     await client.chat.postMessage({
@@ -162,6 +173,10 @@ app.view('record_type_determined_view', async ({ ack, body, view, client, logger
 
     logger.error(error);
   }
+});
+
+app.action('url_button', async ({ ack }) => {
+  await ack();
 });
 
 (async () => {
