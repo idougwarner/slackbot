@@ -11,12 +11,16 @@ const setItem = (key, value) => {
 };
 
 const getItem = (key) => {
-  const value = localStorage.getItem(key);
-
   try {
-    return JSON.parse(value);
+    const value = localStorage.getItem(key);
+
+    try {
+      return JSON.parse(value);
+    } catch (error) {
+      return value;
+    }
   } catch (error) {
-    return value;
+    return null;
   }
 };
 
