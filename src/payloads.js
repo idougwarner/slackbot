@@ -234,12 +234,8 @@ const recordTypeDeterminedModal = ({
           }
         },
         {
-          type: 'input',
-          label: {
-            type: 'plain_text',
-            text: '-'
-          },
-          element: {
+          type: 'actions',
+          elements: [{
             type: 'checkboxes',
             options: [{
               text: {
@@ -249,8 +245,7 @@ const recordTypeDeterminedModal = ({
               value: 'job_preventing'
             }],
             action_id: 'select_job_preventing'
-          },
-          optional: true
+          }]
         },
         {
           type: 'input',
