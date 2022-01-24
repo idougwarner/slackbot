@@ -44,7 +44,7 @@ const getConnectionByUsernameAndPassword = async () => {
 const getAccounts = async (connection) => {
 	try {
 		const { records } = await connection.query(
-			"SELECT Id, Name FROM Account WHERE Stage__c != 'Terminated' AND RecordTypeId = '0123i0000005iQmAAI'"
+			"SELECT Id, Name FROM Account WHERE Stage__c != 'Terminated' AND RecordTypeId = '0123i0000005ixjAAA'"
 		);
 		return records
 			.map((record) => ({
